@@ -1,14 +1,14 @@
 #include	"unp.h"
-#include	<time.h>
-
-int
-main(int argc, char **argv)
+#include <time.h>
+int main(int argc, char **argv)
 {
-	int					listenfd, connfd;
+	printf("test servaddr.sin_addr.s_addr 123464681");
+	int listenfd, connfd;
+	// 网际套接口地址结构体
 	// sockaddr_in 结构体解决了sockaddr的缺陷，把port和addr 分开储存在两个变量中
 	struct sockaddr_in	servaddr;
-	char				buff[MAXLINE];
-	time_t				ticks;
+	char buff[MAXLINE];
+	time_t ticks;
 
 	// 创建套接口
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
@@ -16,7 +16,8 @@ main(int argc, char **argv)
 	servaddr.sin_family      = AF_INET;
 
 	// host to network long
-	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	// sin_addr 32位ip地址 s_addr 32位ipv4地址
+	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);  // INADDR_ANY一般为内核指定的,大多数系统取0,表示任意的IP地址.
 	servaddr.sin_port        = htons(13);	/* daytime server */	
 	Bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
