@@ -2,6 +2,24 @@
 #include "errno.h"
 
 // #define TEST
+
+int isBigEndian() {
+	union {
+		int a;
+		char b;
+	}tmp;
+
+	tmp.a = 1;
+	if (tmp.b == 0) {
+		printf("big endian \n");
+		return 1;
+	} else if (tmp.b == 1) {
+		printf("little endian \n");
+		return 0;
+	}
+}
+
+
 #ifdef TEST
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -53,22 +71,6 @@ int main(int argc, char **argv)
 	int sockfd, n;
 	char recvline[MAXLINE + 1];
 	struct sockaddr_in servaddr; // 网际套接口地址结构体
-
-	printf("test %s\n", argv[0]);
-	printf("test %s\n", argv[1]);
-
-	union {
-		int a;
-		char b;
-	}tmp;
-
-	tmp.a = 1;
-
-	if (tmp.b == 0) {
-		printf("big endian \n");
-	} else if (tmp.b == 1) {
-		printf("little endian \n");
-	}
 
 	if (argc != 2){
 		// 分不同情况将出错消息将按指定的级别（LOG_ERR）传递给syslog或者输出到标准错误输出
