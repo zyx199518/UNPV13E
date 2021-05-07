@@ -1,4 +1,52 @@
-#include	"unp.h"
+#include "unp.h"
+#include "errno.h"
+
+// #define TEST
+#ifdef TEST
+int main(int argc, char **argv) {
+	if (argc != 2) {
+		err_quit("参数数量错误!, 错误码%d", errno);
+	}
+
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);  
+	if (sockfd < 0) { // 返回-1
+		err_quit("创建失败客户端套接字失败!, 错误码%d", errno);
+	}
+
+	struct sockaddr_in serv_addr;
+	bzero((void*)&serv_addr, sizeof(serv_addr));
+	// 初始化服务端套接口地址结构
+	serv_addr.sin_family = AF_INET; 
+	serv_addr.sin_port = htons(13);
+	if (inet_pton(AF_INET, argv[1], &serv_addr.sin_addr) < 0) {  // 返回-1
+		err_quit("服务器ip地址格式错误,转换网络字节序失败!, 错误码%d", errno);
+	}
+
+	// connect 激发三路握手
+	if (connect(sockfd, (const struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+		// 返回-1
+		err_quit("连接失败 错误码%d", errno);
+	}
+
+	int n;
+	char buffer[MAXLINE + 1]; // 4096
+	while((n = read(sockfd, buffer, MAXLINE)) > 0) {
+		buffer[n] = 0;
+		if (fputs(buffer, stdout) == EOF) {
+			err_quit("输出失败 错误码 %d", errno);
+		}
+	}
+
+	if (n == 0) {
+		err_quit("到达文件末尾 %d", errno);
+	} else {
+		err_quit("读取出错 %d", errno);
+	}
+
+	exit(0); // 程序正常退出
+}
+
+#else
 
 int main(int argc, char **argv)
 {
@@ -29,9 +77,9 @@ int main(int argc, char **argv)
 	}
 
 	// AF_前缀代表地址族
-	// AF_INET(ipv4协议) 
+	// AF_INET = ipv4 AF_INET6 = ipv6
 	// SOCK_STREAM（流格式套接字/面向连接的套接字）或者 SOCK_DGRAM（数据报套接字/无连接的套接字）
-	// IPPROTO_TCP 和 IPPTOTO_UDP 或者使用0自动推演
+	// IPPROTO_TCP、IPPTOTO_UDP、IPPROTO_SCTP、IPPROTO_TIPC或者 使用0自动推演
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		err_sys("socket error");
 	}
@@ -80,6 +128,9 @@ int main(int argc, char **argv)
 
 	exit(0);
 }
+
+#endif
+
 
 
 /* http://c.biancheng.net/view/2131.html 
